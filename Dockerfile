@@ -39,9 +39,9 @@ ENV PYTHONUNBUFFERED 1
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 
-# Copy the wait-for-db script
-COPY wait-for-db.sh /wait-for-db.sh
-RUN chmod +x /wait-for-db.sh
+# # Copy the wait-for-db script
+# COPY wait-for-db.sh /wait-for-db.sh
+# RUN chmod +x /wait-for-db.sh
 
 COPY ./app /app
 
@@ -74,5 +74,5 @@ ENV PATH="/py/bin:$PATH"
 USER django-user
 
 # Default command to run your application (replace with your actual command)
-CMD ["./wait-for-db.sh", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 # CMD ["./wait_for_db.sh", "your_db_container_name", "python", "manage.py", "runserver", "0.0.0.0:8000"]

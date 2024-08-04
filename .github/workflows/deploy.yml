@@ -151,16 +151,16 @@ jobs:
         run: |
           docker push dannybeaudoin16/recipe-api:latest
 
-      - name: Copy wait-for-db script
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
-          chmod 600 /tmp/id_rsa
-          scp -o StrictHostKeyChecking=no -i /tmp/id_rsa ./wait-for-db.sh root@89.116.167.78:/tmp/wait-for-db.sh
-          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
-            chmod +x /tmp/wait-for-db.sh
-          EOF
+      # - name: Copy wait-for-db script
+      #   env:
+      #     SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      #   run: |
+      #     echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
+      #     chmod 600 /tmp/id_rsa
+      #     scp -o StrictHostKeyChecking=no -i /tmp/id_rsa ./wait-for-db.sh root@89.116.167.78:/tmp/wait-for-db.sh
+      #     ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
+      #       chmod +x /tmp/wait-for-db.sh
+      #     EOF
 
       - name: Deploy API to VPS
         env:
@@ -172,7 +172,7 @@ jobs:
             docker pull dannybeaudoin16/recipe-api:latest
             docker stop recipe-container || true
             docker rm recipe-container || true
-            /tmp/wait-for-it.sh postgres-container:5432 -- \
+            # /tmp/wait-for-it.sh postgres-container:5432 -- \
             docker run -d -p 8000:8000 --name recipe-container --network recipe-network \
               -e DB_HOST=postgres-container \
               -e DB_NAME=devdb \
