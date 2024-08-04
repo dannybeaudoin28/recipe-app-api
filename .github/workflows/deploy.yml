@@ -100,6 +100,6 @@ jobs:
           scp -o StrictHostKeyChecking=no -i /tmp/id_rsa docker-compose.yml root@89.116.167.78:/root/docker-compose.yml
           ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
             cd /root
-            docker-compose up -d
+            docker compose up -d
           EOF
 
