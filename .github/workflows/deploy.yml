@@ -65,4 +65,4 @@ jobs:
           #     dannybeaudoin16/recipe-api:latest
           # EOF
 
-          docker compose up -d
+          docker compose up
