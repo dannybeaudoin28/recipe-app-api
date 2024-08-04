@@ -26,7 +26,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t your_dockerhub_username/your_image_name:latest .
+          docker build -t dannybeaudoin16/recipe-api:latest .
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -36,7 +36,7 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push your_dockerhub_username/your_image_name:latest
+          docker push dannybeaudoin16/recipe-api:latest
 
       - name: Deploy to VPS
         env:
@@ -44,9 +44,9 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
           chmod 600 /tmp/id_rsa
-          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@your_vps_ip << 'EOF'
-            docker pull your_dockerhub_username/your_image_name:latest
+          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
+            docker pull dannybeaudoin16/recipe-api:latest
             docker stop your_container_name || true
             docker rm your_container_name || true
-            docker run -d -p 8000:8000 --name your_container_name your_dockerhub_username/your_image_name:latest
+            docker run -d -p 8000:8000 --name your_container_name dannybeaudoin16/recipe-api:latest
           EOF
