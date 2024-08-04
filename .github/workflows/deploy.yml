@@ -1,3 +1,72 @@
+# name: Deploy to Hostinger VPS
+
+# on:
+#   push:
+#     branches:
+#       - main  # Change to your default branch
+
+# jobs:
+#   build_and_deploy:
+#     runs-on: ubuntu-20.04
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v2
+
+#       - name: Cache Docker layers
+#         uses: actions/cache@v3
+#         with:
+#           path: /tmp/.buildx-cache
+#           key: ${{ runner.os }}-docker-${{ github.sha }}
+#           restore-keys: |
+#             ${{ runner.os }}-docker-
+
+#       - name: Build Docker image
+#         run: |
+#           docker build -t dannybeaudoin16/recipe-api:latest .
+
+#       - name: Log in to Docker Hub
+#         uses: docker/login-action@v2
+#         with:
+#           username: ${{ secrets.DOCKERHUB_USER }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#       - name: Push Docker image
+#         run: |
+#           docker push dannybeaudoin16/recipe-api:latest
+
+#       - name: Deploy to VPS
+#         env:
+#           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+#         run: |
+#           echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
+#           chmod 600 /tmp/id_rsa
+#           ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
+#             docker pull dannybeaudoin16/recipe-api:latest
+#             docker pull postgres:13-alpine
+#             docker network create recipe-network
+#             docker stop recipe-container || true
+#             docker rm recipe-container || true
+#             docker stop postgres-container || true
+#             docker rm postgres-container || true
+#             docker run -d --name postgres-container --network recipe-network \
+#               -e POSTGRES_DB=devdb \
+#               -e POSTGRES_USER=devuser \
+#               -e POSTGRES_PASSWORD=changeme \
+#               -p 5432:5432 \
+#               postgres:13-alpine
+#             docker run -d -p 8000:8000 --name recipe-container --network recipe-network \
+#               -e DB_HOST=postgres-container \
+#               -e DB_NAME=devdb \
+#               -e DB_USER=devuser \
+#               -e DB_PASS=changeme \
+#               -e DJANGO_ALLOWED_HOSTS=89.116.167.78 \
+#               dannybeaudoin16/recipe-api:latest
+#           EOF
+
 name: Deploy to Hostinger VPS
 
 on:
@@ -6,8 +75,52 @@ on:
       - main  # Change to your default branch
 
 jobs:
-  build_and_deploy:
+  deploy-db:
     runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Deploy Database to VPS
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
+          chmod 600 /tmp/id_rsa
+          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
+            docker pull postgres:13-alpine
+            docker network create recipe-network || true
+            docker stop postgres-container || true
+            docker rm postgres-container || true
+            docker run -d --name postgres-container --network recipe-network \
+              -e POSTGRES_DB=devdb \
+              -e POSTGRES_USER=devuser \
+              -e POSTGRES_PASSWORD=changeme \
+              -p 5432:5432 \
+              postgres:13-alpine
+          EOF
+
+  deploy-api:
+    runs-on: ubuntu-20.04
+    needs: deploy-db
 
     steps:
       - name: Checkout code
@@ -38,7 +151,16 @@ jobs:
         run: |
           docker push dannybeaudoin16/recipe-api:latest
 
-      - name: Deploy to VPS
+      - name: Copy wait-for-db script
+        run: |
+          echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
+          chmod 600 /tmp/id_rsa
+          scp -o StrictHostKeyChecking=no -i /tmp/id_rsa ./wait-for-db.sh root@89.116.167.78:/tmp/wait-for-db.sh
+          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
+            chmod +x /tmp/wait-for-db.sh
+          EOF
+
+      - name: Deploy API to VPS
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
@@ -46,18 +168,9 @@ jobs:
           chmod 600 /tmp/id_rsa
           ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
             docker pull dannybeaudoin16/recipe-api:latest
-            docker pull postgres:13-alpine
-            docker network create recipe-network
             docker stop recipe-container || true
             docker rm recipe-container || true
-            docker stop postgres-container || true
-            docker rm postgres-container || true
-            docker run -d --name postgres-container --network recipe-network \
-              -e POSTGRES_DB=devdb \
-              -e POSTGRES_USER=devuser \
-              -e POSTGRES_PASSWORD=changeme \
-              -p 5432:5432 \
-              postgres:13-alpine
+            /tmp/wait-for-it.sh postgres-container:5432 -- \
             docker run -d -p 8000:8000 --name recipe-container --network recipe-network \
               -e DB_HOST=postgres-container \
               -e DB_NAME=devdb \
