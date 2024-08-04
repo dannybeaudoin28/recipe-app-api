@@ -1,3 +1,56 @@
+# name: Deploy to Hostinger VPS
+
+# on:
+#   push:
+#     branches:
+#       - main  # Change to your default branch
+
+# jobs:
+#   build_and_deploy:
+#     runs-on: ubuntu-20.04
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v2
+
+#       - name: Cache Docker layers
+#         uses: actions/cache@v3
+#         with:
+#           path: /tmp/.buildx-cache
+#           key: ${{ runner.os }}-docker-${{ github.sha }}
+#           restore-keys: |
+#             ${{ runner.os }}-docker-
+
+#       - name: Build Docker image
+#         run: |
+#           docker build -t dannybeaudoin16/recipe-api:latest .
+
+#       - name: Log in to Docker Hub
+#         uses: docker/login-action@v2
+#         with:
+#           username: ${{ secrets.DOCKERHUB_USER }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#       - name: Push Docker image
+#         run: |
+#           docker push dannybeaudoin16/recipe-api:latest
+
+#       - name: Deploy to VPS
+#         env:
+#           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+#         run: |
+#           echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
+#           chmod 600 /tmp/id_rsa
+#           ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
+#             docker pull dannybeaudoin16/recipe-api:latest
+#             docker stop recipe-container || true
+#             docker rm recipe-container || true
+#             docker run -d -p 8000:8000 --name recipe-container dannybeaudoin16/recipe-api:latest
+#           EOF
+
 name: Deploy to Hostinger VPS
 
 on:
@@ -44,9 +97,9 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
           chmod 600 /tmp/id_rsa
+          scp -o StrictHostKeyChecking=no -i /tmp/id_rsa docker-compose.yml root@89.116.167.78:/root/docker-compose.yml
           ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
-            docker pull dannybeaudoin16/recipe-api:latest
-            docker stop recipe-container || true
-            docker rm recipe-container || true
-            docker run -d -p 8000:8000 --name recipe-container dannybeaudoin16/recipe-api:latest
+            cd /root
+            docker-compose up -d
           EOF
+
