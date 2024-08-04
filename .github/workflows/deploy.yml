@@ -152,12 +152,13 @@ jobs:
           docker push dannybeaudoin16/recipe-api:latest
 
       - name: Copy wait-for-db script
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
           chmod 600 /tmp/id_rsa
-          # scp -o StrictHostKeyChecking=no -i /tmp/id_rsa ./wait-for-db.sh root@89.116.167.78:/tmp/wait-for-db.sh
+          scp -o StrictHostKeyChecking=no -i /tmp/id_rsa ./wait-for-db.sh root@89.116.167.78:/tmp/wait-for-db.sh
           ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
-            scp ./wait_for_db.sh root@89.116.167.78:/tmp/wait-for-db.sh
             chmod +x /tmp/wait-for-db.sh
           EOF
 
