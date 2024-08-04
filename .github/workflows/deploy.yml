@@ -63,5 +63,6 @@ jobs:
               -e DB_NAME=devdb \
               -e DB_USER=devuser \
               -e DB_PASS=changeme \
+              -e DJANGO_ALLOWED_HOSTS=89.116.167.78 \
               dannybeaudoin16/recipe-api:latest
           EOF

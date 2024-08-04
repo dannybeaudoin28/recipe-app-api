@@ -40,8 +40,8 @@ COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 
 # Copy the wait-for-db script
-COPY wait_for_db.sh /wait_for_db.sh
-RUN chmod +x /wait_for_db.sh
+# COPY wait_for_db.sh /wait_for_db.sh
+# RUN chmod +x /wait_for_db.sh
 
 COPY ./app /app
 
