@@ -74,4 +74,5 @@ ENV PATH="/py/bin:$PATH"
 USER django-user
 
 # Default command to run your application (replace with your actual command)
-CMD ["./wait_for_db.sh", "recipe-container", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# CMD ["./wait_for_db.sh", "your_db_container_name", "python", "manage.py", "runserver", "0.0.0.0:8000"]
