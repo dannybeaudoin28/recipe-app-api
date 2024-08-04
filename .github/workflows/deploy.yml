@@ -47,17 +47,18 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
             docker pull dannybeaudoin16/recipe-api:latest
             docker pull postgres:13-alpine
+            docker network create recipe-network
             docker stop recipe-container || true
             docker rm recipe-container || true
             docker stop postgres-container || true
             docker rm postgres-container || true
-            docker run -d --name postgres-container \
+            docker run -d --name postgres-container --network recipe-network \
               -e POSTGRES_DB=devdb \
               -e POSTGRES_USER=devuser \
               -e POSTGRES_PASSWORD=changeme \
               -p 5432:5432 \
               postgres:13-alpine
-            docker run -d -p 8000:8000 --name recipe-container \
+            docker run -d -p 8000:8000 --name recipe-container --network recipe-network \
               -e DB_HOST=localhost \
               -e DB_NAME=devdb \
               -e DB_USER=devuser \
