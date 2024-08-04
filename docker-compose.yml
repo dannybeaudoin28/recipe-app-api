@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   app:
-    build: 
+    build:
       context: .
       args:
         - DEV=true
@@ -11,7 +11,7 @@ services:
     volumes:
       - ./app:/app
     command: >
-      sh -c "python manage.py wait_for_db &&
+      sh -c "/wait_for_db.sh &&
              python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     environment:
@@ -21,6 +21,7 @@ services:
       - DB_PASS=changeme
     depends_on:
       - db
+
   db:
     image: postgres:13-alpine
     volumes:
