@@ -7,7 +7,7 @@ on:
 
 jobs:
   build_and_deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout code
@@ -46,7 +46,7 @@ jobs:
           chmod 600 /tmp/id_rsa
           ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
             docker pull dannybeaudoin16/recipe-api:latest
-            docker stop your_container_name || true
-            docker rm your_container_name || true
-            docker run -d -p 8000:8000 --name your_container_name dannybeaudoin16/recipe-api:latest
+            docker stop recipe-container || true
+            docker rm recipe-container || true
+            docker run -d -p 8000:8000 --name recipe-container dannybeaudoin16/recipe-api:latest
           EOF
