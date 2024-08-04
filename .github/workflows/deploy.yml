@@ -66,3 +66,4 @@ jobs:
           # EOF
 
           docker-compose up
+          EOF
