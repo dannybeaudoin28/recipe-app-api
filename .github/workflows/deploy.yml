@@ -58,7 +58,7 @@ jobs:
               -p 5432:5432 \
               postgres:13-alpine
             docker run -d -p 8000:8000 --name recipe-container \
-              -e DB_HOST=localhost \
+              -e DB_HOST=db \
               -e DB_NAME=devdb \
               -e DB_USER=devuser \
               -e DB_PASS=changeme \
