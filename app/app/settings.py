@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '89.116.167.78',
     'dannybeaudoin613.com',
+    'www.dannybeaudoin613.com',
 ]
 
 
