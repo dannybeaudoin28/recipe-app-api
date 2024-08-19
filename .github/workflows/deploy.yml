@@ -196,5 +196,5 @@ jobs:
               -e DJANGO_ALLOWED_HOSTS=89.116.167.78 \
               -v /path/to/your/certs:/certs:ro \
               dannybeaudoin16/recipe-api:latest \
-              bash -c "python manage.py runsslserver 0.0.0.0:8000 --certificate fullchain.pem --key privkey.pem"
+              bash -c "python manage.py runsslserver 0.0.0.0:8000 --certificate /etc/ssl/certs/fullchain.pem --key /etc/ssl/certs/privkey.pem"
           EOF
