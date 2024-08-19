@@ -10,6 +10,9 @@ COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 COPY fullchain.pem /etc/ssl/certs/fullchain.pem
 COPY privkey.pem /etc/ssl/certs/privkey.pem
 
+# Install bash if needed
+RUN apk add --no-cache bash
+
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
