@@ -7,6 +7,9 @@ ENV PYTHONUNBUFFERED 1
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 
+COPY fullchain.pem /etc/ssl/certs/fullchain.pem
+COPY privkey.pem /etc/ssl/certs/privkey.pem
+
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

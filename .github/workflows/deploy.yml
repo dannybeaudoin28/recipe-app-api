@@ -165,6 +165,22 @@ jobs:
       - name: Deploy API to VPS
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        # run: |
+        #   echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
+        #   chmod 600 /tmp/id_rsa
+        #   ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa root@89.116.167.78 << 'EOF'
+        #     docker pull dannybeaudoin16/recipe-api:latest
+        #     docker stop recipe-container || true
+        #     docker rm recipe-container || true
+        #     # /tmp/wait-for-it.sh postgres-container:5432 -- \
+        #     docker run -d -p 8000:8000 --name recipe-container --network recipe-network \
+        #       -e DB_HOST=postgres-container \
+        #       -e DB_NAME=devdb \
+        #       -e DB_USER=devuser \
+        #       -e DB_PASS=changeme \
+        #       -e DJANGO_ALLOWED_HOSTS=89.116.167.78 \
+        #       dannybeaudoin16/recipe-api:latest
+        #   EOF
         run: |
           echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
           chmod 600 /tmp/id_rsa
@@ -172,12 +188,13 @@ jobs:
             docker pull dannybeaudoin16/recipe-api:latest
             docker stop recipe-container || true
             docker rm recipe-container || true
-            # /tmp/wait-for-it.sh postgres-container:5432 -- \
-            docker run -d -p 8000:8000 --name recipe-container --network recipe-network \
+            docker run -d -p 443:8000 --name recipe-container --network recipe-network \
               -e DB_HOST=postgres-container \
               -e DB_NAME=devdb \
               -e DB_USER=devuser \
               -e DB_PASS=changeme \
               -e DJANGO_ALLOWED_HOSTS=89.116.167.78 \
-              dannybeaudoin16/recipe-api:latest
+              -v /path/to/your/certs:/certs:ro \
+              dannybeaudoin16/recipe-api:latest \
+              bash -c "python manage.py runsslserver 0.0.0.0:8000 --certificate ./fullchain.pem --key ./privkey.pem"
           EOF

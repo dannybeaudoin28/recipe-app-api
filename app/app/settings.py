@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'user',
     'recipe',
     'corsheaders',
+    'sslserver',
 ]
 
 MIDDLEWARE = [
