@@ -32,6 +32,8 @@ ALLOWED_HOSTS = [
     '89.116.167.78',
     'dannybeaudoin613.com',
     'www.dannybeaudoin613.com',
+    'https://www.dannybeaudoin613.com',
+    'https://www.dannybeaudoin613.com:443',
 ]
 
 
