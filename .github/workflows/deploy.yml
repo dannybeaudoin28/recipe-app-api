@@ -188,7 +188,7 @@ jobs:
             docker pull dannybeaudoin16/recipe-api:latest
             docker stop recipe-container || true
             docker rm recipe-container || true
-            docker run -d -p 443:8000 --name recipe-container --network recipe-network \
+            docker run -d -p 8000:8000 --name recipe-container --network recipe-network \
               -e DB_HOST=postgres-container \
               -e DB_NAME=devdb \
               -e DB_USER=devuser \
